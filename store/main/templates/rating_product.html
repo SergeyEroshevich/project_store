@@ -1,0 +1,13 @@
+{% extends "main.html" %}
+{% block content %}
+<body>
+    <div>
+        <h2>{{product.name}}</h2>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <button>Оценить</button>
+        </form>
+    </div>
+</body>
+{% endblock %}>

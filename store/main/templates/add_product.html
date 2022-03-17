@@ -1,0 +1,25 @@
+{% extends "main.html" %}
+{% block content %}
+
+
+<body>
+<h2>Добавление нового товара</h2>
+<form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+        {{form.as_table}}
+    </table>
+    <br>
+    Добавить фото:
+    <span> <input type="file" value="" name="photo_1" ></span>
+    <span> <input type="file" value="" name="photo_2" ></span>
+    <span> <input type="file" value="" name="photo_3" ></span>
+    <span> <input type="file" value="" name="photo_4" ></span><br><br>
+    <button>Добавить товар</button>
+</form>
+
+
+
+</body>
+{% endblock %}
+

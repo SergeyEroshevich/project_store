@@ -1,0 +1,20 @@
+{% extends "main.html" %}
+{% block content %}
+{% load static %}
+<body>
+<h2>Вход в личный кабинет</h2>
+<div>
+    <form action="" method="post">
+    {% csrf_token %}
+    <table>
+        {{form.as_table}}
+    </table>
+    <br>
+    <button>Войти</button>
+</form>
+    <img style="height: 300px; width: 300px; " src="{% static 'img/log.png' %}" alt="">
+</div>
+
+
+</body>
+{% endblock %}

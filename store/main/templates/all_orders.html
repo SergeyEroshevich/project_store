@@ -1,0 +1,52 @@
+{% extends "main.html" %}
+{% block content %}
+<body>
+<h2 style="text-align: center">Все заказы</h2>
+<form action="" method="post">
+    {% csrf_token %}
+    <select name="status" id="">
+        <option value="1">Принято в обработку</option>
+        <option value="2">Доставлен покупателю</option>
+        <option value="3">Упакован и отправлен</option>
+        <option value="4">Отменен</option>
+        <option value="5">Ожидание поступления товара</option>
+        <option value="6">Доставлен покупателю и получена оценка</option>
+    </select>
+    <button>Фильтровать</button>
+</form>
+    <div style="padding-left: 20px">
+        <table class="table">
+            <tr>
+                <th class="th"><a href="/all_orders/data_order/{{c}}/">Дата заказа</a></th>
+                <th class="th"><a href="/all_orders/id/{{c}}/">Номер заказа</a></th>
+                <th class="th">Статус</th>
+                <th class="th">Сумма</th>
+                <th class="th">Способ оплаты</th>
+                <th class="th">Способ доставки</th>
+                <th class="th">Телефон</th>
+                <th class="th">Адрес</th>
+
+            </tr>
+            {% for order in all_orders %}
+            <tr>
+                <td class="td">{{order.data_order}}</td>
+                <td class="td"><a href="{{order.get_absolute_url}}">Заказ №{{order.id}}</a></td>
+                <td class="td">{{order.status}}</td>
+                <td class="td">{{order.total}}</td>
+                <td class="td">{{order.payment}}</td>
+                <td class="td">{{order.delivery}}</td>
+                <td class="td">{{order.phone}}</td>
+                <td class="td">{{order.adress}}</td>
+
+            </tr>
+            {% endfor %}
+        </table>
+        <span style="padding-right: 650px; padding-left: 25px; line-height: 40px"><a href="/all_orders/id/{{a}}/"><< назад</a></span>
+
+    {% for i in order_for_page %}
+    <span style="margin: 20px; line-height: 40px"> <a href="/all_orders/id/{{i}}/">{{i}}</a></span>
+    {% endfor %}
+        <span><a href="/all_orders/id/{{b}}/"> вперед >></a></span>
+    </div>
+</body>
+{% endblock %}>

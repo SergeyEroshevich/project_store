@@ -1,0 +1,26 @@
+{% extends "main.html" %}
+{% block content %}
+
+
+<body>
+<div>
+    <h2>Характеристика товара</h2>
+    <p>Наименование: {{product.name}}</p>
+    <p>Стоимость: {{product.price}}</p>
+    <p>Страна производства: {{product.country}}</p>
+    <p>Бренд: {{product.brand}}</p>
+    <p>Описание: {{product.full_description}}</p>
+    {% for i in img %}
+</div>
+
+
+<div class="card_detail">
+    <img  class="prod_img" src="{{i.img.url}}" alt="нет картинки">
+</div>
+
+
+{% endfor %}
+
+</body>
+
+{% endblock %}

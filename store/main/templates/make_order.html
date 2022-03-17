@@ -1,0 +1,18 @@
+{% extends "main.html" %}
+{% block content %}
+
+
+<body>
+<h3>Оформление заказа</h3>
+<p>Покупатель: {{user.last_name}} {{user.first_name}}</p>
+<p>Товар: {{product.name}}</p>
+<form action="" method="post">
+    {% csrf_token %}
+    <table>
+    {{form.as_table}}
+</table>
+    <button>Оформить заказ</button>
+</form>
+
+</body>
+{% endblock %}

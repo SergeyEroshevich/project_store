@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+{% load socialaccount %}
+
+{% load static %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Магазин детских товаров</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="header">
+    <div class="header__wrapper">
+        <div class="header__social">
+            <a href="/"><img class = "social_img" src="{% static 'img/vk.png' %}" alt=""></a>
+            <a href="/"><img class = "social_img" src="{% static 'img/Facebook-logo.png' %}" alt=""></a>
+            <a href="/"><img class = "social_img" src="{% static 'img/inst.png' %}" alt=""></a>
+        </div>
+
+
+        <div class="header__logo">
+            <a href="/"><img class="logo_img" src="{% static 'img/logo.png' %}" alt=""></a>
+        </div>
+
+        <div class="header__contact">
+
+                {% if not user.is_authenticated %}
+                <a href="{% url 'main:login' %}">Вход в аккаунт</a>
+                <a href="{% url 'main:registration' %}">Регистрация</a>
+                <a href="{% url 'social:begin' 'vk-oauth2' %}">Войти через ВКонтакте</a>
+                <a href="{% provider_login_url 'facebook' method='oauth2' %}" >Войти через Фейсбук</a>
+
+
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <span>{{user.first_name}}, вы вошли в аккаунт</span>
+                <span><a href="/accounts/profile/">Профиль</a></span>
+                <span><a href="{% url 'main:my_orders' %}">Мои заказы</a></span>
+                <span><a href="{% url 'main:logout' %}">Выход</a></span>
+                {% endif %}
+
+
+
+        </div>
+    </div>
+</div>
+
+<nav class="nav">
+
+    <span><a href="{% url 'main:contacts' %}">Контакты</a></span>
+    <span><a href="{% url 'main:shipping_payment' %}">Доставка и оплата</a></span>
+    <span><a href="{% url 'main:discounts' %}">Акции</a></span>
+
+</nav>
+
+{% if user.is_staff %}
+<nav class="adminka">
+
+        <span><a href="{% url 'main:add_product' %}">Добавить новый продукт</a></span>
+        <span><a href="/all_orders/id/1/">Все заказы</a></span>
+
+</nav>
+{% endif %}
+
+<nav class="nav">
+    <ul>
+        <a style="font-size: 23px" href="{% url 'main:main' %}">Все категории </a>
+        {% for category in categories %}
+        <a href="{{category.get_absolute_url}}"><li class="category"> {{category.name}} </li></a>
+        {% endfor %}
+    </ul>
+
+</nav>
+
+{% block content %}
+<div class="wrapper">
+    <div class="wrapper__sort">
+        <form action="" method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+            <button>OK</button>
+        </form>
+    </div>
+
+    <div class="wrapper__search">
+        <p style="font-size: 25px">Поиск по параметрам:</p>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{form_search.as_p}}
+            <button>OK</button>
+        </form>
+    </div>
+
+    <div class="wrapper__main">
+        {% for product in products %}
+        <a href="{{product.get_absolute_url}}" class="get_card">
+            <div class="card_product">
+                <div class="card_img">
+                    <img class="prod_img" src="{{product.product_image.first.img.url}}" alt="нет картинки">
+                </div>
+                <div class="card_data">
+                    <p>Наименование: {{product.name}}</p>
+                    <p>Количество: {{product.stock}}</p>
+    <!--                <p>Количество проданных: {{product.res2}}</p>-->
+                    <p>Рейтинг: {{product.rating}}</p>
+                    <p style="font-size: 23px">Стоимость: {{product.res}}</p>
+                    <form action="http://127.0.0.1:8000/make_order/{{product.name}}" method="get">
+                        {% csrf_token %}
+                        <input type="submit" value="Купить">
+                    </form>
+                </div>
+        </div>
+    </a>
+
+    {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}
+<footer class="footer">
+    <div>
+        <p>2022 © Buslik.by
+
+Общество с ограниченной ответственностью "ДПМ", ООО "ДПМ"</p>
+        <p>
+Сеть супермаркетов для детей «Мама купи», УНП 190732637, Свидетельство о гос регистрации выдано Минским облисполкомом 2.01.2019 г.
+Юридический адрес: 223049, Республика Беларусь, Минская обл., Минский р-н, Щомыслицкий с/с, 32/4
+        </p>
+    </div>
+</footer>
+</body>
+</html>

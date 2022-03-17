@@ -1,0 +1,22 @@
+{% extends "main.html" %}
+{% block content %}
+<body>
+    <h3 style="text-align: center">Мои заказы</h3>
+
+
+
+    {% for order in orders %}
+
+    <div>
+        <p><a href="/order_details_for_buyer/{{order.id}}/">Номер заказа: {{order.id}}</a></p>
+        <p>Дата заказа: {{order.data_order}}</p>
+        <p>Статус: {{order.status}}</p>
+
+        <br>
+
+    </div>
+    {% endfor  %}
+
+
+</body>
+{% endblock %}>
