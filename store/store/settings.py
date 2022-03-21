@@ -194,3 +194,12 @@ SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
 SOCIAL_AUTH_INSTAGRAM_KEY = '697940631247332'
 SOCIAL_AUTH_INSTAGRAM_SECRET = 'f85a64599292ce41c16ef48d53adbfce'
+
+
+SERVER_EMAIL = 'python25092021@gmail.com'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'eroshik.test@gmail.com'
+EMAIL_HOST_PASSWORD = 'SxHdzbDPcTyCb9a'
+EMAIL_PORT = 587

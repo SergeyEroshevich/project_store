@@ -105,8 +105,9 @@
                     <p>Наименование: {{product.name}}</p>
                     <p>Количество: {{product.stock}}</p>
     <!--                <p>Количество проданных: {{product.res2}}</p>-->
+                    <p>Бренд: {{product.brand}}</p>
                     <p>Рейтинг: {{product.rating}}</p>
-                    <p style="font-size: 23px">Стоимость: {{product.res}}</p>
+                    <p style="font-size: 20px">Стоимость: {{product.res}} руб.</p>
                     <form action="http://127.0.0.1:8000/make_order/{{product.name}}" method="get">
                         {% csrf_token %}
                         <input type="submit" value="Купить">

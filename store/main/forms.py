@@ -11,7 +11,7 @@ class ProductForm(forms.ModelForm):
     price = forms.DecimalField(max_digits=5, decimal_places=2, min_value=0, label='Стоимость')
     country = forms.CharField(max_length=30, label='Страна производства')
     description = forms.CharField(max_length=100, label='Краткое описание', widget=forms.Textarea)
-    full_description = forms.CharField(max_length=250, label='Подробное описание', widget=forms.Textarea)
+    full_description = forms.CharField(max_length=1000, label='Подробное описание', widget=forms.Textarea)
     stock = forms.IntegerField(min_value=0, label='Количество')
 
     class Meta:
@@ -49,8 +49,8 @@ class ChangeUserlnfoForm(forms.ModelForm):
         fields = ('email', 'first_name', 'last_name',)
 
 class OrderForm(forms.ModelForm):
-    adress = forms.CharField(widget=forms.Textarea())
-    phone = forms.CharField(widget=forms.TextInput())
+    adress = forms.CharField(widget=forms.Textarea(), label='Адрес')
+    phone = forms.CharField(widget=forms.TextInput(), label='Телефон')
     total = forms.CharField(label= 'Итого', widget=forms.TextInput(attrs={'readonly':'readonly'}))
 
 
@@ -78,7 +78,7 @@ class RatingForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
-    discount = forms.BooleanField(label='Товары со скидкой')
+    discount = forms.BooleanField(label='Товары со скидкой', required=False)
     brand = forms.ModelMultipleChoiceField(queryset=Brand.objects.all(), widget=forms.CheckboxSelectMultiple, label='Производитель')
-    price_from = forms.IntegerField(min_value=0, label='стоимость от')
-    price_to = forms.IntegerField(min_value=0, label='стоимость до')
+    price_from = forms.IntegerField(min_value=0, label='стоимость от', required=False)
+    price_to = forms.IntegerField(min_value=0, label='стоимость до', required=False)

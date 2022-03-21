@@ -3,8 +3,13 @@ from django.contrib.auth import authenticate, logout
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.db.models import Count, F, ExpressionWrapper, DecimalField, FloatField
+from django.core.mail import send_mail
+from django.db.models import Count, F, ExpressionWrapper, DecimalField, FloatField, Q, IntegerField
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
@@ -19,13 +24,24 @@ def main(request, category_slug = None):
     form_search = SearchForm()
     category = None
     categories = Category.objects.all()
-    # products = Product.objects.filter(available=True)
-    products = Product.objects.annotate(res=ExpressionWrapper(F('price')*1.2, FloatField()), res2=Count('order'))
+    products = Product.objects.annotate(res=ExpressionWrapper(F('price')*1.2, IntegerField()), res2=Count('order')).filter(available=True)
+    # products = Product.objects.annotate(res=F('price')*1.2, res2=Count('order')).filter(available=True)
 
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
+
     if request.method == 'POST':
+        if request.POST.get('discount') == 'on':
+            products = products.filter(discount=True)
+        if request.POST.get('brand'):
+            brands = request.POST.getlist('brand')
+            products = products.filter(brand__in=[i for i in brands])
+        if request.POST.get('price_from'):
+            products = products.filter(res__gte=request.POST.get('price_from'))
+        if request.POST.get('price_to'):
+            products = products.filter(res__lte=request.POST.get('price_to'))
+
         if request.POST.get('sort'):
             sort = int(request.POST.get('sort'))
             if sort == 1:
@@ -74,9 +90,19 @@ def make_order(request, product):
             order.products.add(product)
         product.stock = product.stock - 1
         product.save()
-
     context = {'form': form, 'product':product}
     return render(request, 'make_order.html', context)
+
+
+@receiver(post_save, sender=Order)
+def mail_make_order(sender, **kwargs):
+    subject = 'Оформление заказа в магазине'
+    html_message = render_to_string('message_order.html', {'order': kwargs.get('instance')})
+    plain_message = strip_tags(html_message)
+    from_email = 'eroshik.test@gmail.com'
+    instance = kwargs.get('instance')
+    to_mail = instance.buyer.email
+    send_mail(subject, plain_message, from_email, [to_mail], html_message=html_message)
 
 
 def product_detail(request, product_id, product_slug):
@@ -142,6 +168,18 @@ def registration(request):
             return redirect('/')
     context = {'form': form}
     return render(request, 'registration.html', context)
+
+
+@receiver(post_save, sender=User)
+def mail_registration(sender, **kwargs):
+    subject = 'Регистрация на сайте интернет-магазина'
+    html_message = render_to_string('message_registration.html', {'user': kwargs.get('instance')})
+    plain_message = strip_tags(html_message)
+    from_email = 'eroshik.test@gmail.com'
+    instance = kwargs.get('instance')
+    to_mail = instance.email
+    send_mail(subject, plain_message, from_email, [to_mail], html_message=html_message)
+
 
 @login_required()
 def change_profile(request):
