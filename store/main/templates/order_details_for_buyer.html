@@ -4,7 +4,8 @@
 <h2>Заказ № {{order.id}}</h2>
 <div>
     <p>Товар: {% for product in order.products.all %}
-    <p>{{product}} </p> {% endfor %}</p>
+    <p>{{product}} </p>
+    {% endfor %}</p>
     <p>Адрес: {{order.adress}}</p>
     <p>Телефон: {{order.phone}}</p>
 </div>

@@ -17,7 +17,21 @@
             <a href="/"><img class = "social_img" src="{% static 'img/vk.png' %}" alt=""></a>
             <a href="/"><img class = "social_img" src="{% static 'img/Facebook-logo.png' %}" alt=""></a>
             <a href="/"><img class = "social_img" src="{% static 'img/inst.png' %}" alt=""></a>
+            <a href="{% url 'cart:cart_detail' %}"><img class="cart" src="{% static 'img/korz.jpg' %}" alt=""></a>
+
+            <div style="margin: 15px;">
+                {% with total_items=cart|length %}
+                {% if cart|length > 0 %}
+                    <p class="value_cart">{{ total_items }}</p>
+                    {% else %}
+                        <p class="value_cart">0</p>
+                    {% endif %}
+                {% endwith %}
+            </div>
         </div>
+
+
+
 
 
         <div class="header__logo">
@@ -25,6 +39,7 @@
         </div>
 
         <div class="header__contact">
+
 
                 {% if not user.is_authenticated %}
                 <a href="{% url 'main:login' %}">Вход в аккаунт</a>
@@ -61,6 +76,7 @@
 
         <span><a href="{% url 'main:add_product' %}">Добавить новый продукт</a></span>
         <span><a href="/all_orders/id/1/">Все заказы</a></span>
+        <span><a href="{% url 'main:discount_managment' %}">Управление скидками</a></span>
 
 </nav>
 {% endif %}
@@ -99,19 +115,31 @@
         <a href="{{product.get_absolute_url}}" class="get_card">
             <div class="card_product">
                 <div class="card_img">
+                    {% if product.discount %}
+                    <img class="discaunt" src="{% static 'img/discaunt.jpg' %}" alt="">
+                    <p class="discaunt_text">{{product.value_sale}}%</p>
+                    {% endif %}
                     <img class="prod_img" src="{{product.product_image.first.img.url}}" alt="нет картинки">
+
                 </div>
                 <div class="card_data">
-                    <p>Наименование: {{product.name}}</p>
+                    <p style="font-size: 15px">Наименование: {{product.name}}</p>
                     <p>Количество: {{product.stock}}</p>
-    <!--                <p>Количество проданных: {{product.res2}}</p>-->
+<!--                    <p>Количество проданных: {{product.res2}}</p>-->
                     <p>Бренд: {{product.brand}}</p>
-                    <p>Рейтинг: {{product.rating}}</p>
-                    <p style="font-size: 20px">Стоимость: {{product.res}} руб.</p>
+                    <p>Рейтинг: {% if product.rating %} {{product.rating}} {% else %} нет оценок {% endif %}</p>
+                    {% if not product.discount %}
+                    <p>Стоимость: {{product.price}} руб.</p>
+                    {% endif %}
+                    {% if product.discount %}
+                    <p style="color: red">Стоимость со скидкой: {{product.res_sale}} руб.</p>
+                    {% endif %}
+                    {% if product.stock %}
                     <form action="http://127.0.0.1:8000/make_order/{{product.name}}" method="get">
                         {% csrf_token %}
                         <input type="submit" value="Купить">
                     </form>
+                    {% endif %}
                 </div>
         </div>
     </a>
@@ -124,7 +152,7 @@
 {% endblock %}
 <footer class="footer">
     <div>
-        <p>2022 © Buslik.by
+        <p>2022 © Mamakupi.by
 
 Общество с ограниченной ответственностью "ДПМ", ООО "ДПМ"</p>
         <p>

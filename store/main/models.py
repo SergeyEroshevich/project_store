@@ -39,6 +39,7 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, related_name='brands', on_delete=models.CASCADE, null=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     discount = models.BooleanField(default=False)
+    sale = models.FloatField(default=1)
     country = models.CharField(max_length=50, db_index=True)
     description = models.TextField(blank=True)
     full_description = models.TextField(blank=True)

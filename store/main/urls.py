@@ -2,7 +2,7 @@ from django.urls import path, reverse_lazy
 from django.contrib.auth.views import PasswordChangeView, PasswordChangeDoneView
 from .views import main, add_product, product_detail, make_order, contacts, profile_logout, registration, to_profile, \
     profile, change_profile, my_orders, order_details, rating_product, order_details_for_buyer, all_orders, discounts, \
-    shipping_payment
+    shipping_payment, discount_managment
 
 app_name = 'main'
 urlpatterns = [
@@ -25,6 +25,7 @@ urlpatterns = [
     path('accounts/password_change/', PasswordChangeView.as_view( template_name='password_change_form.html', success_url = reverse_lazy ('main:password_change_done')), name='password_change'),
     path('accounts/password_change/done/', PasswordChangeDoneView.as_view( template_name='password_changed.html'), name='password_change_done'),
     path('shipping&payment/',  shipping_payment, name='shipping_payment'),
-    path('discounts/', discounts, name='discounts')
+    path('discounts/', discounts, name='discounts'),
+    path('discount_managment/', discount_managment, name='discount_managment'),
 
 ]

@@ -1,3 +1,4 @@
+from decimal import Decimal
 
 from django.contrib.auth import authenticate, logout
 from django.contrib.auth import login
@@ -5,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.db.models import Count, F, ExpressionWrapper, DecimalField, FloatField, Q, IntegerField
+from django.db.models.functions import Round, Ceil
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
@@ -14,7 +16,7 @@ from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .forms import ProductForm, LoginForm, RegistrationForm, ChangeUserlnfoForm, OrderForm, SortForm, StatusForm, \
-    RatingForm, SearchForm
+    RatingForm, SearchForm, DiscountForm, DiscountDeleteForm
 from .models import Category, Product, Image, Profile, Order, Rating
 
 
@@ -24,9 +26,9 @@ def main(request, category_slug = None):
     form_search = SearchForm()
     category = None
     categories = Category.objects.all()
-    products = Product.objects.annotate(res=ExpressionWrapper(F('price')*1.2, IntegerField()), res2=Count('order')).filter(available=True)
-    # products = Product.objects.annotate(res=F('price')*1.2, res2=Count('order')).filter(available=True)
-
+    products = Product.objects.annotate(value_sale=ExpressionWrapper(100 - F('sale') * 100, IntegerField()),
+                                        res_sale=Round(ExpressionWrapper(F('price')*F('sale'), DecimalField())), res2=Count('order')).filter(available=True)
+    # products = Product.objects.annotate(res=ExpressionWrapper(F('price')*1.2, IntegerField()), value_sale=ExpressionWrapper(100-F('sale')*100 ,IntegerField()) , res_sale=ExpressionWrapper(F('price')*1.2*F('sale'), IntegerField()), res2=Count('order')).filter(available=True)
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
@@ -57,9 +59,6 @@ def main(request, category_slug = None):
     context = {'category': category, 'products': products, 'categories': categories, 'form': form, 'form_search': form_search}
     return render(request, 'main.html', context)
 
-def price_product(product, margin):
-    price = float(product.price) * (1+margin)
-    return price
 
 def add_product(request):
     form = ProductForm()
@@ -81,7 +80,7 @@ def add_product(request):
 @login_required()
 def make_order(request, product):
     product = Product.objects.get(name=product)
-    form = OrderForm(initial={'adress':request.user.profile.adress, 'total':product.price, 'phone': request.user.profile.phone})
+    form = OrderForm(initial={'adress':request.user.profile.adress, 'total':round(product.price*Decimal(product.sale)), 'phone': request.user.profile.phone})
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
@@ -90,7 +89,9 @@ def make_order(request, product):
             order.products.add(product)
         product.stock = product.stock - 1
         product.save()
-    context = {'form': form, 'product':product}
+    items = []
+    items.append(product)
+    context = {'form': form, 'products':items}
     return render(request, 'make_order.html', context)
 
 
@@ -107,6 +108,7 @@ def mail_make_order(sender, **kwargs):
 
 def product_detail(request, product_id, product_slug):
     product = get_object_or_404(Product, id=product_id, slug=product_slug, available=True)
+    # cart_product_form = CartAddProductForm()
     img = Image.objects.filter(product_id=product_id)
     context = {'product':product, 'img':img}
     return render(request, 'product_detail.html', context)
@@ -296,6 +298,39 @@ def rating_product(request,order_id, product_id):
     context = {'product':product, 'form':form}
     return render(request, 'rating_product.html', context)
 
+def discount_managment(request):
+    form = DiscountForm()
+    form_delete = DiscountDeleteForm()
+    products = Product.objects.filter(discount=True)
+    if request.method == 'POST':
+        if request.POST.get('product'):
+            products_for_discount = request.POST.getlist('product')
+            for product in products_for_discount:
+                product = Product.objects.get(id=product)
+                product.discount = True
+                sale = 1 - int(request.POST.get('discount'))/100
+                product.sale = sale
+                product.save()
+        if request.POST.get('category'):
+            category_discount = request.POST.getlist('category')
+            for category in category_discount:
+                category = Category.objects.get(id=category)
+                products = Product.objects.filter(category=category)
+                for product in products:
+                    product.discount = True
+                    sale = 1 - int(request.POST.get('discount')) / 100
+                    product.sale = sale
+                    product.save()
+        if request.POST.get('product_discount'):
+            product_discount = request.POST.getlist('product_discount')
+            for product in product_discount:
+                product = Product.objects.get(id=product)
+                product.discount = False
+                product.sale = 1
+                product.save()
+
+    context = {'products':products, 'form': form, 'form_delete':form_delete}
+    return render(request, 'discount_managment.html', context)
 
 def shipping_payment(request):
     return render(request, 'shipping_payment.html')

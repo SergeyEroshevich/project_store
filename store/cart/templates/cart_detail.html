@@ -1,0 +1,47 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block content %}
+    <h1>Моя корзина товаров</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th class="th">Изображение</th>
+            <th class="th">Товар</th>
+            <th class="th">Количество</th>
+            <th class="th">Убрать из корзины</th>
+            <th class="th">Цена за единицу</th>
+            <th class="th">Стоимость</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in cart %}
+            {% with product=item.product %}
+                <tr>
+                    <td class="td">
+                        <a href="{{ product.get_absolute_url }}">
+                            <img style="width: 100px; height: 100px" src="{{product.product_image.first.img.url}}">
+                        </a>
+                    </td>
+                    <td class="td">{{ product.name }}</td>
+                    <td class="td">{{ item.quantity }}</td>
+                    <td class="td"><a href="{% url "cart:cart_remove" product.id %}">Удалить</a></td>
+                    <td  class="td">{{ item.price }} руб.</td>
+                    <td  class="td">{{ item.total_price }} руб.</td>
+                </tr>
+            {% endwith %}
+        {% endfor %}
+        <tr class="total">
+            <td>Итого</td>
+            <td colspan="4"></td>
+            <td class="num">{{ cart.get_total_price }} руб.</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p style="font-size: 21px; color: red">{{error}}</p>
+    <p class="text-right">
+        <a href="{% url "main:main" %}" class="button light">Продолжить покупки</a>
+        <a href="{% url "cart:order_create" %}" class="button">Оформить покупку</a>
+    </p>
+{% endblock %}

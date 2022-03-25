@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'main',
     'api',
+    'cart',
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
@@ -87,6 +88,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'cart.context_processors.cart',
             ],
         },
     },
@@ -203,3 +205,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'eroshik.test@gmail.com'
 EMAIL_HOST_PASSWORD = 'SxHdzbDPcTyCb9a'
 EMAIL_PORT = 587
+
+CART_SESSION_ID = 'cart'

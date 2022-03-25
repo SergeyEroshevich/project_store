@@ -3,17 +3,27 @@
 
 
 <body>
+
 <div>
     <h2>Характеристика товара</h2>
     <p>Наименование: {{product.name}}</p>
-    <p>Стоимость: {{product.price}}</p>
+    <p>Полная стоимость: {{product.price}}</p>
     <p>Страна производства: {{product.country}}</p>
     <p>Бренд: {{product.brand}}</p>
     <p>Описание: {{product.full_description}}</p>
-    {% for i in img %}
+    {% if product.stock %}
+        <form action="{% url "cart:cart_add" product.id %}" method="post">
+
+            <input type="number" value="" name="stock" max={{product.stock}} min="1" required placeholder=" укажите не более {{product.stock}}">
+            {% csrf_token %}
+            <input type="submit" value="Добавить в корзину">
+        </form>
+    {% else %}
+    <p style="color: red">Товар не доступен</p>
+    {% endif %}
 </div>
 
-
+{% for i in img %}
 <div class="card_detail">
     <img  class="prod_img" src="{{i.img.url}}" alt="нет картинки">
 </div>
