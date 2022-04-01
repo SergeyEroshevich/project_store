@@ -16,7 +16,7 @@ from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 from .forms import ProductForm, LoginForm, RegistrationForm, ChangeUserlnfoForm, OrderForm, SortForm, StatusForm, \
-    RatingForm, SearchForm, DiscountForm, DiscountDeleteForm
+    RatingForm, SearchForm, DiscountForm, DiscountDeleteForm, AdressProfileForm, PhoneProfileForm
 from .models import Category, Product, Image, Profile, Order, Rating
 
 
@@ -28,7 +28,7 @@ def main(request, category_slug = None):
     categories = Category.objects.all()
     products = Product.objects.annotate(value_sale=ExpressionWrapper(100 - F('sale') * 100, IntegerField()),
                                         res_sale=Round(ExpressionWrapper(F('price')*F('sale'), DecimalField())), res2=Count('order')).filter(available=True)
-    # products = Product.objects.annotate(res=ExpressionWrapper(F('price')*1.2, IntegerField()), value_sale=ExpressionWrapper(100-F('sale')*100 ,IntegerField()) , res_sale=ExpressionWrapper(F('price')*1.2*F('sale'), IntegerField()), res2=Count('order')).filter(available=True)
+
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=category)
@@ -80,18 +80,25 @@ def add_product(request):
 @login_required()
 def make_order(request, product):
     product = Product.objects.get(name=product)
-    form = OrderForm(initial={'adress':request.user.profile.adress, 'total':round(product.price*Decimal(product.sale)), 'phone': request.user.profile.phone})
+    Profile.objects.get_or_create(user=request.user)
+    total = round(product.price*Decimal(product.sale))
+    form = OrderForm(initial={'adress':request.user.profile.adress, 'total':total, 'phone': request.user.profile.phone})
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
             order = Order(buyer=request.user, **form.cleaned_data)
+            if total < 50 and order.delivery == 'Курьер':
+                order.total = int(order.total) + 7
+            elif total < 50 and order.delivery == 'Почта':
+                order.total = int(order.total) + 7
             order.save()
             order.products.add(product)
         product.stock = product.stock - 1
         product.save()
+        return redirect('/my_orders/')
     items = []
     items.append(product)
-    context = {'form': form, 'products':items}
+    context = {'form': form, 'products':items, 'total': total}
     return render(request, 'make_order.html', context)
 
 
@@ -125,29 +132,35 @@ def to_profile(request):
         if user is not None:
             login(request, user)
             return redirect('/')
-        else:
-            print('Не получилось ')
-
     context = {'form': form}
     return render(request, 'login.html', context)
 
 @login_required()
 def profile(request):
-    user = User.objects.get(id=request.user.id)
-    try:
-        Profile.objects.get(user=user)
-    except:
-        Profile.objects.create(user=user)
+    form_adress = AdressProfileForm()
+    form_phone = PhoneProfileForm()
+
+    user = request.user
+    Profile.objects.get_or_create(user=user)
     if request.method == 'POST':
+
         if request.POST.get('adress'):
-            profile = Profile.objects.get(user=request.user)
-            profile.adress = request.POST.get('adress')
-            profile.save()
+            form_adress = AdressProfileForm(request.POST)
+            if form_adress.is_valid():
+                adress = form_adress.cleaned_data.get('adress')
+                profile = Profile.objects.get(user=request.user)
+                profile.adress = adress
+                profile.save()
+
         if request.POST.get('phone'):
-            profile = Profile.objects.get(user=request.user)
-            profile.phone = request.POST.get('phone')
-            profile.save()
-    context = {'user': user}
+            form_phone = PhoneProfileForm(request.POST)
+            if form_phone.is_valid():
+                phone = form_phone.cleaned_data.get('phone')
+                profile = Profile.objects.get(user=request.user)
+                profile.phone = phone
+                profile.save()
+
+    context = {'user': user, 'form_adress': form_adress, 'form_phone': form_phone}
     return render(request, 'profile.html', context)
 
 
@@ -205,7 +218,7 @@ def change_profile(request):
     return render(request, 'change_user_info.html', context)
 
 def  my_orders(request):
-    orders = Order.objects.filter(buyer=request.user)
+    orders = Order.objects.filter(buyer=request.user).order_by('-data_order')
     context = {'orders': orders}
     return render(request, 'my_orders.html', context)
 
@@ -261,7 +274,7 @@ def order_details(request, order_id):
     if request.method == 'POST':
         order.status = request.POST['status']
         order.save()
-        return redirect('/my_orders/')
+        return redirect(f'/order_details/{order_id}/')
     context = {'order':order, 'form': form}
     return render(request, 'order_details.html', context)
 

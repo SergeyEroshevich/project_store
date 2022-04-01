@@ -3,7 +3,7 @@ from django.shortcuts import render
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
-from main.models import Product
+from main.models import Product, Profile
 from .cart import Cart
 
 from main.forms import OrderForm
@@ -38,6 +38,7 @@ def cart_detail(request):
 
 @login_required()
 def order_create(request):
+    Profile.objects.get_or_create(user=request.user)
     cart = Cart(request)
     items = []
     for item in cart:
@@ -60,7 +61,7 @@ def order_create(request):
                 product.stock = product.stock - item['quantity']
                 product.save()
             cart.clear()
-    context = {'form': form, 'products':items}
+    context = {'form': form, 'products':items, 'total': cart.get_total_price()}
     return render(request, 'make_order.html', context)
 
 

@@ -6,21 +6,25 @@
 <div class="profile">
     <p style="font-family: sans-serif">Имя: {{user.first_name}}</p>
     <p style="font-family: sans-serif">Фамилия: {{user.last_name}}</p>
-    <p style="font-family: sans-serif"> {% if not user.profile.adress  %} Адрес:
+
+    {% if not user.profile.adress  %}
         <form action="" method="post">
             {% csrf_token %}
-    <textarea name="adress" id="" cols="30" rows="10"></textarea> <input type="submit" value="Добавить адрес">
+            {{form_adress.as_table}}
+            <button>Добавить адрес</button>
         </form>
-        {% endif %}</p>
+    {% endif %}
+    <br>
+    {% if not user.profile.phone  %}
+
+        <form action="" method="POST">
+            {% csrf_token %}
+                    {{form_phone.as_table}}
+            <button>Добавить</button>
+        </form>
+    {% endif %}
+
     <p style="font-family: sans-serif">{% if user.profile.adress  %}Адрес: {{user.profile.adress}} {% endif %}</p>
-
-
-    <p style="font-family: sans-serif"> {% if not user.profile.phone  %} Телефон:
-        <form action="" method="post">
-            {% csrf_token %}
-    <input type="tel" name="phone"> <input type="submit" value="Добавить телефон">
-        </form>
-        {% endif %}</p>
     <p style="font-family: sans-serif">{% if user.profile.phone  %} Телефон: {{user.profile.phone}} {% endif %}</p>
 
     <p style="font-family: sans-serif">Электронная почта: {{user.email}}</p>

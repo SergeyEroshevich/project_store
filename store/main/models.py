@@ -39,7 +39,7 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, related_name='brands', on_delete=models.CASCADE, null=True)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     discount = models.BooleanField(default=False)
-    sale = models.FloatField(default=1)
+    sale = models.DecimalField(default=1, decimal_places=2, max_digits=3)
     country = models.CharField(max_length=50, db_index=True)
     description = models.TextField(blank=True)
     full_description = models.TextField(blank=True)
@@ -48,6 +48,8 @@ class Product(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     rating = models.FloatField(null=True, blank=True)
+    cost_price = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+
 
     def __str__(self):
         return self.name
@@ -62,7 +64,7 @@ class Product(models.Model):
 
 class Profile(models.Model):
     adress = models.TextField(blank=True, null=True)
-    phone = models.IntegerField(blank=True, null=True)
+    phone = models.CharField(max_length=13, blank=True, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):

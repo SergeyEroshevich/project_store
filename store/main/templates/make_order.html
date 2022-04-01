@@ -4,13 +4,21 @@
 
 <body>
     <h3>Оформление заказа</h3>
+         {% if  total < 50 %}
+            <p style="color: red">
+                Стоимость товара менее 50 руб. Если выбран способ доставки курьером или почтой, то к сумме заказа будет добавлено 7 руб.
+            </p>
+            {% else %}
+             <p style="color: red">Бесплатная доставка</p>
+         {% endif %}
     <p>Покупатель: {{user.last_name}} {{user.first_name}}</p>
 
     <p>Товар:</p>
     <ul>
          {% for product in products %}
+
         <li>{{product}}</li>
-        {%endfor%}
+        {% endfor %}
     </ul>
 
     <form action="" method="post">
@@ -18,8 +26,10 @@
         <table>
             {{form.as_table}}
         </table>
+
         <button>Оформить заказ</button>
     </form>
+
 
 </body>
 {% endblock %}
