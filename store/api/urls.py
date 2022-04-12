@@ -7,7 +7,7 @@ from .views import products, BrandApi
 app_name = 'api'
 
 urlpatterns = [
-    path('', products, name='products'),
+    path('products/', products, name='products'),
     path('brands/', BrandApi.as_view(), name='brands'),
 
 ]

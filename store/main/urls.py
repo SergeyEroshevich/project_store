@@ -7,7 +7,6 @@ from .views import main, add_product, product_detail, make_order, contacts, prof
 app_name = 'main'
 urlpatterns = [
     path('', main, name='main'),
-    path('<category_slug>', main, name='main_category'),
     path('add_product/', add_product, name='add_product'),
     path('make_order/<product>', make_order, name='make_order'),
     path('product_detail/<product_id>/<product_slug>', product_detail, name='product_detail'),
@@ -27,5 +26,6 @@ urlpatterns = [
     path('shipping&payment/',  shipping_payment, name='shipping_payment'),
     path('discounts/', discounts, name='discounts'),
     path('discount_managment/', discount_managment, name='discount_managment'),
+    path('<category_slug>/', main, name='main_category'),
 
 ]

@@ -19,16 +19,18 @@ from django.conf.urls.static import static
 from django.contrib import admin
 
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
     path('cart/', include ('cart.urls')),
-    path('', include ('main.urls')),
     path('api/', include ('api.urls')),
     path('social/', include('social_django.urls', namespace='social')),
-    # path('auth/', include('rest_framework_social_oauth2.urls')),
-
-    path('accounts', include('allauth.urls')),
+    path('account/', include('allauth.urls')),
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('', include ('main.urls')),
 ]
 
 if settings.DEBUG:

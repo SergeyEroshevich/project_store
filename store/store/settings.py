@@ -52,7 +52,8 @@ INSTALLED_APPS = [
 
     'oauth2_provider',
     'social_django',
-    # 'rest_framework_social_oauth2',
+    'rest_framework_social_oauth2',
+
 ]
 
 MIDDLEWARE = [
@@ -69,8 +70,13 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework_social_oauth2.authentication.SocialAuthentication'
+        'rest_framework_social_oauth2.authentication.SocialAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
     ],
+
 }
 
 ROOT_URLCONF = 'store.urls'
@@ -182,7 +188,7 @@ SOCIALACCOUNT_PROVIDERS = \
         'VERIFIED_EMAIL': False,
         'VERSION': 'v2.4'}}
 
-#site id
+
 SITE_ID = 2
 ACCOUNT_EMAIL_REQUIRED=True
 ACCOUNT_USERNAME_REQURIED=True
@@ -220,5 +226,5 @@ CART_SESSION_ID = 'cart'
 # SECURE_HSTS_SECONDS             = None
 # SECURE_HSTS_INCLUDE_SUBDOMAINS  = False
 # SECURE_FRAME_DENY               = False
-
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+#
+# ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"

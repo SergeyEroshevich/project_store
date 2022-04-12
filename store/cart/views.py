@@ -61,6 +61,7 @@ def order_create(request):
                 product.stock = product.stock - item['quantity']
                 product.save()
             cart.clear()
+            return redirect('/my_orders/')
     context = {'form': form, 'products':items, 'total': cart.get_total_price()}
     return render(request, 'make_order.html', context)
 

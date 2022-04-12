@@ -5,15 +5,14 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.db.models import Count, F, ExpressionWrapper, DecimalField, FloatField, Q, IntegerField
-from django.db.models.functions import Round, Ceil
-from django.db.models.signals import post_save
+from django.db.models import Count, F, ExpressionWrapper, DecimalField, IntegerField
+from django.db.models.functions import Round
+from django.db.models.signals import post_save, post_init
 from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+
 
 from .forms import ProductForm, LoginForm, RegistrationForm, ChangeUserlnfoForm, OrderForm, SortForm, StatusForm, \
     RatingForm, SearchForm, DiscountForm, DiscountDeleteForm, AdressProfileForm, PhoneProfileForm
@@ -40,22 +39,30 @@ def main(request, category_slug = None):
             brands = request.POST.getlist('brand')
             products = products.filter(brand__in=[i for i in brands])
         if request.POST.get('price_from'):
-            products = products.filter(res__gte=request.POST.get('price_from'))
+            products = products.filter(res_sale__gte=request.POST.get('price_from'))
         if request.POST.get('price_to'):
-            products = products.filter(res__lte=request.POST.get('price_to'))
+            products = products.filter(res_sale__lte=request.POST.get('price_to'))
 
         if request.POST.get('sort'):
-            sort = int(request.POST.get('sort'))
-            if sort == 1:
-                products = products.order_by('-price')
-            if sort == 2:
-                products = products.order_by('price')
-            if sort == 3:
-                products = products.order_by('-res2')
-            if sort == 4:
-                products = products.order_by('-rating')
-            if sort == 5:
-                products = products.order_by('created')
+            atrr = int(request.POST.get('sort'))
+            method_sort = {1: '-price', 2: 'price', 3: '-res2', 4: '-rating', 5: 'created'}
+
+            def sort(method, product):
+                products = product.order_by(method)
+                return products
+            products = sort(method_sort.get(atrr), products)
+
+            # sort = int(request.POST.get('sort'))
+            # if sort == 1:
+            #     products = products.order_by('-price')
+            # if sort == 2:
+            #     products = products.order_by('price')
+            # if sort == 3:
+            #     products = products.order_by('-res2')
+            # if sort == 4:
+            #     products = products.order_by('-rating')
+            # if sort == 5:
+            #     products = products.order_by('created')
     context = {'category': category, 'products': products, 'categories': categories, 'form': form, 'form_search': form_search}
     return render(request, 'main.html', context)
 
@@ -141,14 +148,13 @@ def profile(request):
     form_phone = PhoneProfileForm()
 
     user = request.user
-    Profile.objects.get_or_create(user=user)
+    profile, status = Profile.objects.get_or_create(user=user)
     if request.method == 'POST':
 
         if request.POST.get('adress'):
             form_adress = AdressProfileForm(request.POST)
             if form_adress.is_valid():
                 adress = form_adress.cleaned_data.get('adress')
-                profile = Profile.objects.get(user=request.user)
                 profile.adress = adress
                 profile.save()
 
@@ -156,7 +162,6 @@ def profile(request):
             form_phone = PhoneProfileForm(request.POST)
             if form_phone.is_valid():
                 phone = form_phone.cleaned_data.get('phone')
-                profile = Profile.objects.get(user=request.user)
                 profile.phone = phone
                 profile.save()
 
@@ -185,7 +190,8 @@ def registration(request):
     return render(request, 'registration.html', context)
 
 
-@receiver(post_save, sender=User)
+
+@receiver(post_init, sender=User)
 def mail_registration(sender, **kwargs):
     subject = 'Регистрация на сайте интернет-магазина'
     html_message = render_to_string('message_registration.html', {'user': kwargs.get('instance')})
@@ -350,3 +356,15 @@ def shipping_payment(request):
 
 def discounts(request):
     return render(request, 'discounts.html')
+
+
+
+from allauth.account.views import SignupView, LoginView
+
+
+class MySignupView(SignupView):
+    template_name = 'my_signup.html'
+
+
+class MyLoginView(LoginView):
+    template_name = 'my_login.html'
