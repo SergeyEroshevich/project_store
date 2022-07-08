@@ -191,7 +191,7 @@ def registration(request):
 
 
 
-@receiver(post_init, sender=User)
+# @receiver(post_init, sender=User)
 def mail_registration(sender, **kwargs):
     subject = 'Регистрация на сайте интернет-магазина'
     html_message = render_to_string('message_registration.html', {'user': kwargs.get('instance')})
