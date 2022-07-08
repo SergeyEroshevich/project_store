@@ -4,8 +4,6 @@ body {
 }
 
 .header{
-    /*display: flex;*/
-    /*justify-content: center;*/
     height: 200px;
     width: 100%;
     margin: 0 auto;
@@ -99,7 +97,6 @@ table{
 }
 
 nav{
-
     height: 40px;
     justify-content: center;
     background: mediumturquoise;
